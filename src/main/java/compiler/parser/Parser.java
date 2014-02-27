@@ -3,7 +3,6 @@ package compiler.parser;
 import compiler.commons.*;
 import compiler.lexer.*;
 import compiler.notation.StackMachine;
-import compiler.symbols.Env;
 import compiler.symbols.Type;
 
 import java.io.IOException;
@@ -15,12 +14,10 @@ import java.util.ArrayList;
  */
 public class Parser {
     public StringBuffer postFix = new StringBuffer();
-    private static String lookahead;
-    private Lexer lexer;// lexical analyzer for this parser
+    private Lexer lexer;
     private StackMachine stackMachine;
-    private Token look; // lookahead tagen
-    Env top = null; // current or top symbol table
-    int used = 0; // storage processedSymbols for declarations
+
+    private Token look;
     private Id currentAssigneeSymbol;
     private Id skipId;
     private int skipFlag = -1;
@@ -53,7 +50,6 @@ public class Parser {
 
 
     public void P() throws IOException {
-        top = new Env(top);
         D();
         L();
     }
@@ -83,8 +79,6 @@ public class Parser {
     public void N(Type b) throws IOException {
         Token tok = look;
         Id id = (Id) tok;
-        top.put(tok, id);
-        used = used + b.width;
         match(Tag.ID);
         N1(b);
     }
@@ -94,8 +88,6 @@ public class Parser {
             match(',');
             Token tok = look;
             Id id = (Id) tok;
-            top.put(tok, id);
-            used = used + b.width;
             match(Tag.ID);
             N1(b);
         } else {
@@ -109,24 +101,29 @@ public class Parser {
         stackMachine.evaluate(null);
         if (currentAssigneeSymbol != null) {
             currentAssigneeSymbol.value = stackMachine.value;
-            //System.out.println();
+
             postFix.append("\n");
-            if (currentAssigneeSymbol.type == "int" && stackMachine.value instanceof Float) {
-                postFix.append("Warning : Stack Machine-Time mismatch (Narrowing convention) between assignee id type =" + currentAssigneeSymbol.type + " calculated value type=" + Type.Float.tostring() + "\n");
-                // System.out.println("Warning : Stack Machine-Time mismatch (Narrowing convention) between assignee id type ="+currentAssigneeSymbol.typeOb.tostring()+ " calculated value type="+Type.Float.tostring());
-            } else if (currentAssigneeSymbol.type == "float" && stackMachine.value instanceof Integer) {
-                postFix.append("Warning : Stack Machine-Time mismatch (Widening convention) between assignee id type =" + currentAssigneeSymbol.type + " calculated value type=" + Type.Int.tostring() + "\n");
-                // System.out.println("Warning : Stack Machine-Time mismatch (Widening convention) between assignee id type ="+currentAssigneeSymbol.typeOb.tostring()+ " calculated value type="+Type.Int.tostring());
+            if (currentAssigneeSymbol.type.equals("int") && stackMachine.value instanceof Float) {
+
+                postFix.append("Warning : Stack Machine-Time mismatch (Narrowing convention) between assignee id type =")
+                        .append(currentAssigneeSymbol.type).append(" calculated value type=").append(Type.Float.tostring())
+                        .append("\n");
+
+            } else if (currentAssigneeSymbol.type.equals("float") && stackMachine.value instanceof Integer) {
+                postFix.append("Warning : Stack Machine-Time mismatch (Widening convention) between assignee id type =")
+                        .append(currentAssigneeSymbol.type).append(" calculated value type=").append(Type.Int.tostring())
+                        .append("\n");
+
             }
-            //System.out.println(currentAssigneeSymbol.lexeme+"="+currentAssigneeSymbol.value);
-            postFix.append(currentAssigneeSymbol.lexeme + "=" + currentAssigneeSymbol.value + "\n");
+
+            postFix.append(currentAssigneeSymbol.lexeme).append("=").append(currentAssigneeSymbol.value).append("\n");
         } else {
-            //System.out.println();
+
             postFix.append("\n");
             postFix.append(stackMachine.value);
         }
         currentAssigneeSymbol = null;
-        // toCode(AbsNode.used,bw);
+
         AbstractNode.processedSymbols = new ArrayList<AbstractNode>(); // new set of nodes for new stmt
         AbstractNode.tempVal = 0;
         System.out.println("Postfix notation and value of the statement");
@@ -157,7 +154,10 @@ public class Parser {
             if (look.tag == '=') {
                 match('=');
                 exprn = E();
-                node = threeAddressCodeGenerator.generateCodeForNode(threeAddressCodeGenerator.insertAndGetLeaf(currentAssigneeSymbol), exprn, "="); ////generate code for assignment
+                node = threeAddressCodeGenerator
+                        .generateCodeForNode(threeAddressCodeGenerator.
+                                insertAndGetLeaf(currentAssigneeSymbol), exprn, "=");
+                                ////generate code for assignment
             } else {
                 skipId = currentAssigneeSymbol;
                 currentAssigneeSymbol = null;
@@ -189,7 +189,8 @@ public class Parser {
             //System.out.print("+");
             postFix.append("+");
             stackMachine.evaluate("+");
-            node = threeAddressCodeGenerator.generateCodeForNode(pretn, curtn, "+"); //generate code for node
+            node = threeAddressCodeGenerator.generateCodeForNode(pretn, curtn, "+");
+            //generate code for node
             snode = E1(node);
         } else {
             snode = termnodeinh;
@@ -216,7 +217,9 @@ public class Parser {
             //System.out.print("*");
             postFix.append("*");
             stackMachine.evaluate("*");
-            node = threeAddressCodeGenerator.generateCodeForNode(prefn, curfn, "*"); //generate code for node
+            node = threeAddressCodeGenerator.generateCodeForNode(prefn, curfn, "*");
+            //generate code for node
+
             snode = T1(node);
         } else {
             snode = factnodeinh;
@@ -235,35 +238,38 @@ public class Parser {
             String workLex = word.lexeme;
             stackMachine.postfixTokenStack.push(word);
             match(Tag.ID);
-            abstractNode = threeAddressCodeGenerator.insertAndGetLeaf(word); //insert leaf to  processed symbols if not exists
+            abstractNode = threeAddressCodeGenerator.insertAndGetLeaf(word);
+            //insert leaf to  processed symbols if not exists
             postFix.append(workLex);
-            //System.out.print(workLex);
 
         } else if (look.tag == Tag.NUM) {
             Num num = (Num) look;
             String IntNum = num.tostring();
             match(Tag.NUM);
             stackMachine.postfixTokenStack.push(num);
-            abstractNode = threeAddressCodeGenerator.insertAndGetLeaf(num); //insert leaf to  processed symbols if not exists
+            abstractNode = threeAddressCodeGenerator.insertAndGetLeaf(num);
+            //insert leaf to  processed symbols if not exists
             postFix.append(IntNum);
-            //System.out.print(IntNum);
+
         } else if (look.tag == Tag.FLOAT) {
             Real real = (Real) look;
             String floatNum = real.tostring();
             match(Tag.FLOAT);
             stackMachine.postfixTokenStack.push(real);
-            abstractNode = threeAddressCodeGenerator.insertAndGetLeaf(real); //insert leaf to  processed symbols if not exists
+            abstractNode = threeAddressCodeGenerator.insertAndGetLeaf(real);
+            //insert leaf to  processed symbols if not exists
             postFix.append(floatNum);
-            //System.out.print(floatNum);
+
         } else if (skipId != null && skipFlag == 1) {
             Id word = (Id) skipId;
             String workLex = word.lexeme;
             stackMachine.postfixTokenStack.push(word);
             match(Tag.ID);
-            abstractNode = threeAddressCodeGenerator.insertAndGetLeaf(word); //insert leaf to  processed symbols if not exists
+            abstractNode = threeAddressCodeGenerator.insertAndGetLeaf(word);
+            //insert leaf to  processed symbols if not exists
             postFix.append(workLex);
             skipId = null;
-            //System.out.print(workLex);
+
         } else {
             throw new Error("Syntax Error");
         }

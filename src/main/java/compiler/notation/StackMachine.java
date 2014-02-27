@@ -10,11 +10,11 @@ import compiler.commons.Token;
  * @version ${Revision}
  */
 public class StackMachine {
-    public PostfixTokenStack postfixTokenStack;
+    public TokenStack postfixTokenStack;
     public Object value;
 
     public StackMachine() {
-        postfixTokenStack = new PostfixTokenStack();
+        postfixTokenStack = new TokenStack();
     }
 
     public void evaluate(String operator) {

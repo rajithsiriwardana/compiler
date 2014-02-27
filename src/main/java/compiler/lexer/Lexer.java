@@ -4,6 +4,7 @@ import compiler.commons.*;
 import compiler.symbols.Type;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Hashtable;
 
 /**
@@ -17,23 +18,31 @@ public class Lexer {
     private Hashtable<String, Token> words = new Hashtable<String, Token>();
     private Type currentType;
 
+    private InputStream stream;
+
     void reserve(Id t) {
         words.put(t.lexeme, t);
     }
 
-    public Lexer() {
+    public Lexer(InputStream inputStream) {
+        stream = inputStream;
         reserve(Type.Int);
         reserve(Type.Float);
     }
 
     public Token scan() throws IOException {
-        for (; ; peek = (char) System.in.read()) {
-            if (peek == ' ' || peek == '\t') {
-                continue;
-            } else if (peek == '\n') {
-                line = line + 1;
-            } else {
-                break;
+        label:
+        for (; ; readChar()) {
+            switch (peek) {
+                case ' ':
+                case '\t':
+                case '\r':
+                    break;
+                case '\n':
+                    line = line + 1;
+                    break;
+                default:
+                    break label;
             }
         }
 
@@ -41,7 +50,7 @@ public class Lexer {
             int v = 0;
             do {
                 v = 10 * v + Character.digit(peek, 10);
-                readch();
+                readChar();
             } while (Character.isDigit(peek));
 
             if (peek != '.') {
@@ -52,7 +61,7 @@ public class Lexer {
 
             float d = 10;
             for (; ; ) {
-                readch();
+                readChar();
                 if (!Character.isDigit(peek)) {
                     break;
                 }
@@ -63,10 +72,10 @@ public class Lexer {
         }
 
         if (Character.isLetter(peek)) {
-            StringBuffer b = new StringBuffer();
+            StringBuilder b = new StringBuilder();
             do {
                 b.append(peek);
-                readch();
+                readChar();
             } while (Character.isLetterOrDigit(peek));
 
             String s = b.toString();
@@ -93,8 +102,8 @@ public class Lexer {
         return t;
     }
 
-    void readch() throws IOException {
-        peek = (char) System.in.read();
+    void readChar() throws IOException {
+        peek = (char) stream.read();
     }
 
     public void setCurrentType(Type currentType) {
