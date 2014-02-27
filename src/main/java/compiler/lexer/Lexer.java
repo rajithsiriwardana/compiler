@@ -1,7 +1,7 @@
 package compiler.lexer;
 
 import compiler.commons.*;
-import compiler.symbols.Type;
+import compiler.commons.Type;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -1,10 +1,10 @@
 package compiler.parser;
 
 import compiler.commons.*;
-import compiler.lexer.*;
+import compiler.lexer.Lexer;
 import compiler.notation.StackMachine;
-import compiler.symbols.Type;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -23,10 +23,11 @@ public class Parser {
     private int skipFlag = -1;
     private ThreeAddressCodeGenerator threeAddressCodeGenerator;
 
-    public Parser(Lexer lex, StackMachine stackMachine) throws IOException {
+    public Parser(Lexer lex, StackMachine stackMachine, BufferedWriter writer)
+            throws IOException {
         lexer = lex;
         this.stackMachine = stackMachine;
-        threeAddressCodeGenerator = new ThreeAddressCodeGenerator();
+        threeAddressCodeGenerator = new ThreeAddressCodeGenerator(writer);
         move();
     }
 

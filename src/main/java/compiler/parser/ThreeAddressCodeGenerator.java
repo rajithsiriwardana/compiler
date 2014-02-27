@@ -6,6 +6,7 @@ import compiler.commons.Real;
 import compiler.commons.Tag;
 import compiler.commons.Token;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
 
 /**
@@ -13,6 +14,12 @@ import java.io.IOException;
  * @version ${Revision}
  */
 public class ThreeAddressCodeGenerator {
+
+    private BufferedWriter writer;
+
+    public ThreeAddressCodeGenerator(BufferedWriter writer){
+        this.writer = writer;
+    }
 
     Node generateCodeForNode(AbstractNode left, AbstractNode right, String op) throws IOException {
 
@@ -136,7 +143,7 @@ public class ThreeAddressCodeGenerator {
 
                     }
                 }
-                System.out.println("t" + node.value + "= " + leftSym + node.op + rightSym);
+                writer.write("t" + node.value + "= " + leftSym + node.op + rightSym);
             } else {  //an assignment
                 l = (Leaf) node.left;
                 assId = (Id) l.token; // left of assignment is definitely id
@@ -164,17 +171,17 @@ public class ThreeAddressCodeGenerator {
                         }
                     }
                 }
-                System.out.println(assId.lexeme + "= " + rightSym);
+                writer.write(assId.lexeme + "= " + rightSym);
             }
-            System.out.println();
+            writer.newLine();
         } else {
             if (node.left instanceof Leaf) {
                 l = (Leaf) node.left;
-                System.out.println("t" + node.value + "= " + node.op + l.token.lexeme);
+                writer.write("t" + node.value + "= " + node.op + l.token.lexeme);
             } else {
-                System.out.println("t" + node.value + "= " + node.op + "t" + node.left.value);
+                writer.write("t" + node.value + "= " + node.op + "t" + node.left.value);
             }
-            System.out.println();
+            writer.newLine();
         }
     }
 
