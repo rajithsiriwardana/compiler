@@ -36,7 +36,7 @@ public class Parser {
     }
 
     void error(String s) {
-        throw new Error("near line " + lexer.line + ":" + s);
+        throw new Error("near line " + Lexer.line + ":" + s);
     }
 
     void match(int t) throws IOException {
@@ -56,8 +56,8 @@ public class Parser {
     }
 
     public void D() throws IOException {
-        Type b = B();
-        N(b);
+        B();
+        N();
         lexer.setCurrentType(null);
         match(';');
         D1();
@@ -77,20 +77,16 @@ public class Parser {
         }
     }
 
-    public void N(Type b) throws IOException {
-        Token tok = look;
-        Id id = (Id) tok;
+    public void N() throws IOException {
         match(Tag.ID);
-        N1(b);
+        N1();
     }
 
-    public void N1(Type b) throws IOException {
+    public void N1() throws IOException {
         if (look.tag == ',') {
             match(',');
-            Token tok = look;
-            Id id = (Id) tok;
             match(Tag.ID);
-            N1(b);
+            N1();
         } else {
 
         }
@@ -144,18 +140,16 @@ public class Parser {
     }
 
     public void S() throws IOException {
-        AbstractNode node;
         AbstractNode exprn;
-        Id assId;
         if (look.tag == '(' || look.tag == Tag.NUM) {
-            node = E();
+            E();
         } else if (look.tag == Tag.ID) {
             currentAssigneeSymbol = (Id) look;
             match(Tag.ID);
             if (look.tag == '=') {
                 match('=');
                 exprn = E();
-                node = threeAddressCodeGenerator
+                threeAddressCodeGenerator
                         .generateCodeForNode(threeAddressCodeGenerator.
                                 insertAndGetLeaf(currentAssigneeSymbol), exprn, "=");
                                 ////generate code for assignment
@@ -163,7 +157,7 @@ public class Parser {
                 skipId = currentAssigneeSymbol;
                 currentAssigneeSymbol = null;
                 skipFlag = 1;
-                node = E();
+                E();
             }
         } else {
             throw new Error("Syntax Error");
@@ -171,8 +165,8 @@ public class Parser {
     }
 
     public AbstractNode E() throws IOException {
-        AbstractNode node = null;
-        AbstractNode termnode = null;
+        AbstractNode node;
+        AbstractNode termnode;
         termnode = T();
         node = E1(termnode);
         return node;
@@ -187,7 +181,6 @@ public class Parser {
         if (look.tag == '+') {
             match('+');
             curtn = T();
-            //System.out.print("+");
             postFix.append("+");
             stackMachine.evaluate("+");
             node = threeAddressCodeGenerator.generateCodeForNode(pretn, curtn, "+");
@@ -200,8 +193,8 @@ public class Parser {
     }
 
     public AbstractNode T() throws IOException {
-        AbstractNode node = null;
-        AbstractNode factnode = null;
+        AbstractNode node;
+        AbstractNode factnode;
         factnode = F();
         node = T1(factnode);
         return node;
@@ -229,7 +222,7 @@ public class Parser {
     }
 
     public AbstractNode F() throws IOException {
-        AbstractNode abstractNode = null;
+        AbstractNode abstractNode;
         if (look.tag == '(') {
             match('(');
             abstractNode = E();
@@ -262,7 +255,7 @@ public class Parser {
             postFix.append(floatNum);
 
         } else if (skipId != null && skipFlag == 1) {
-            Id word = (Id) skipId;
+            Id word = skipId;
             String workLex = word.lexeme;
             stackMachine.postfixTokenStack.push(word);
             match(Tag.ID);

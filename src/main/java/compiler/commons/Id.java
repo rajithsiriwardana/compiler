@@ -11,7 +11,7 @@ public class Id extends Token {
     //String type;
     public Id(int t, String s) {
         super(t);
-        lexeme = new String(s);
+        lexeme = s;
         super.lexeme = lexeme;
         value = 0;
     }

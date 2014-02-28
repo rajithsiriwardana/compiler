@@ -18,6 +18,7 @@ public class Controller {
         StackMachine stackMachine = new StackMachine();
         Parser parser = new Parser(lexer, stackMachine, outWrite);
         parser.P();
+        inputStream.close();
         outWrite.close();
     }
 }

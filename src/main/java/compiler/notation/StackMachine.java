@@ -5,16 +5,18 @@ import compiler.commons.Num;
 import compiler.commons.Real;
 import compiler.commons.Token;
 
+import java.util.Stack;
+
 /**
  * @author rajith
  * @version ${Revision}
  */
 public class StackMachine {
-    public TokenStack postfixTokenStack;
+    public Stack<Token> postfixTokenStack;
     public Object value;
 
     public StackMachine() {
-        postfixTokenStack = new TokenStack();
+        postfixTokenStack = new Stack<Token>();
     }
 
     public void evaluate(String operator) {

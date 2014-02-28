@@ -23,7 +23,7 @@ public class ThreeAddressCodeGenerator {
 
     Node generateCodeForNode(AbstractNode left, AbstractNode right, String op) throws IOException {
 
-        Node n = null, temp;
+        Node n;
 
         for (AbstractNode abstractNode : AbstractNode.processedSymbols) {
             if (abstractNode instanceof Node) {
@@ -59,7 +59,7 @@ public class ThreeAddressCodeGenerator {
         AbstractNode.tempVal++; //give a new number to the temperory
         n = new Node(op, left, right);
         if (!n.op.equals("=")) {
-            if (left.type == "float" || right.type == "float") {
+            if (left.type.equals("float") || right.type.equals("float")) {
                 n.type = "float";  // in assignment we can't change type
             } else {
                 n.type = "int";
@@ -88,14 +88,11 @@ public class ThreeAddressCodeGenerator {
 
     /**
      * Generate the three address code for the given node
-     *
-     * @param inNode
-     * @throws java.io.IOException
      */
     private void generateCode(AbstractNode inNode) throws IOException {
         Leaf l;
         Node node;
-        Id id = null, assId = null;
+        Id id, assId;
         Num num;
         String leftSym, rightSym = null;
         node = (Node) inNode;
@@ -187,23 +184,13 @@ public class ThreeAddressCodeGenerator {
 
     /**
      * Check for widening conventions
-     *
-     * @param n
-     * @param left
-     * @param right
-     * @return
-     * @throws java.io.IOException
      */
     private boolean widen(AbstractNode n, AbstractNode left, AbstractNode right) throws IOException {
         String maxtype = "int";
         if (right.type.equals("float") || left.type.equals("float")) {
             maxtype = "float";
         }
-        if (maxtype.equals(n.type)) {
-            return false;
-        } else {
-            return true;
-        }
+        return !maxtype.equals(n.type);
     }
 
 }
