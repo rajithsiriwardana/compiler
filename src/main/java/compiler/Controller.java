@@ -12,8 +12,8 @@ import java.io.*;
  */
 public class Controller {
     public static void main(String[] args) throws IOException {
-        InputStream inputStream = new FileInputStream("./src/main/resources/inputs/input.txt");
-        BufferedWriter outWrite=new BufferedWriter(new FileWriter("./src/main/resources/code/3AC.txt"));
+        InputStream inputStream = new FileInputStream("./src/main/resources/inputs/input2.txt");
+        BufferedWriter outWrite = new BufferedWriter(new FileWriter("./src/main/resources/code/3AC.txt"));
         Lexer lexer = new Lexer(inputStream);
         StackMachine stackMachine = new StackMachine();
         Parser parser = new Parser(lexer, stackMachine, outWrite);

@@ -63,10 +63,8 @@ public class Parser {
         D1();
     }
 
-    public Type B() throws IOException {
-        Type b = (Type) look;
+    public void B() throws IOException {
         match(Tag.BASIC);
-        return b;
     }
 
     public void D1() throws IOException {
@@ -102,12 +100,12 @@ public class Parser {
             postFix.append("\n");
             if (currentAssigneeSymbol.type.equals("int") && stackMachine.value instanceof Float) {
 
-                postFix.append("Warning : Stack Machine-Time mismatch (Narrowing convention) between assignee id type =")
+                postFix.append("Warning : Narrowing convention between assignee id type =")
                         .append(currentAssigneeSymbol.type).append(" calculated value type=").append(Type.Float.tostring())
                         .append("\n");
 
             } else if (currentAssigneeSymbol.type.equals("float") && stackMachine.value instanceof Integer) {
-                postFix.append("Warning : Stack Machine-Time mismatch (Widening convention) between assignee id type =")
+                postFix.append("Warning : Widening convention between assignee id type =")
                         .append(currentAssigneeSymbol.type).append(" calculated value type=").append(Type.Int.tostring())
                         .append("\n");
 
